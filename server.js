@@ -80,17 +80,20 @@ app.get("/init-register", async (req, res) => {
 
 app.post("/verify-register", async (req, res) => {
   try {
-    const regInfo = JSON.parse(req.cookies.regInfo);
-
-    console.log("verify-register called with regInfo:", regInfo);
+    const regInfo = req.cookies.regInfo;
 
     if (!regInfo) {
+      console.error("Registration info not found in cookies");
       return res.status(400).json({ error: "Registration info not found" });
     }
 
+    const parsedRegInfo = JSON.parse(regInfo);
+
+    console.log("verify-register called with regInfo:", parsedRegInfo);
+
     const verification = await verifyRegistrationResponse({
       response: req.body,
-      expectedChallenge: regInfo.challenge,
+      expectedChallenge: parsedRegInfo.challenge,
       expectedOrigin: clientUrl,
       expectedRPID: RP_ID,
     });
@@ -98,12 +101,12 @@ app.post("/verify-register", async (req, res) => {
     console.log("Registration verification result:", verification);
 
     if (verification.verified) {
-      await createUser(regInfo.userId, regInfo.email, {
-        firstName: regInfo.firstName,
-        lastName: regInfo.lastName,
-        dob: regInfo.dob,
+      await createUser(parsedRegInfo.userId, parsedRegInfo.email, {
+        firstName: parsedRegInfo.firstName,
+        lastName: parsedRegInfo.lastName,
+        dob: parsedRegInfo.dob,
         id: verification.registrationInfo.credentialID,
-        publicKey: Buffer.from(verification.registrationInfo.credentialPublicKey), // Store publicKey as Buffer
+        publicKey: Buffer.from(verification.registrationInfo.credentialPublicKey),
         counter: verification.registrationInfo.counter,
         deviceType: verification.registrationInfo.credentialDeviceType,
         backedUp: verification.registrationInfo.credentialBackedUp,
@@ -112,15 +115,14 @@ app.post("/verify-register", async (req, res) => {
       res.clearCookie("regInfo");
       return res.json({ verified: verification.verified });
     } else {
-      return res
-        .status(400)
-        .json({ verified: false, error: "Verification failed" });
+      return res.status(400).json({ verified: false, error: "Verification failed" });
     }
   } catch (error) {
     console.error("Error in verify-register:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.get("/init-auth", async (req, res) => {
   try {
