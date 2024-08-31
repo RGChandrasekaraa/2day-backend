@@ -45,7 +45,7 @@ app.get("/init-register", async (req, res) => {
 
     const options = await generateRegistrationOptions({
       rpID: RP_ID,
-      rpName: "Web Dev Simplified",
+      rpName: "2Day App",
       userName: email,
     });
 
