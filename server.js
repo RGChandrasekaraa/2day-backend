@@ -35,7 +35,10 @@ app.use(cookieParser());
 const clientUrl = process.env.CLIENT_URL;
 const RP_ID = process.env.RP_ID;
 
-app.use(cors({ origin: clientUrl, credentials: true }));
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 app.get("/init-register", async (req, res) => {
   try {
