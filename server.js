@@ -44,10 +44,17 @@ app.get("/init-register", async (req, res) => {
     }
 
     const options = await generateRegistrationOptions({
-      rpID: RP_ID,
-      rpName: "2Day App",
-      userName: email,
-    });
+    rpID: RP_ID,
+    rpName: "2Day App",
+    userName: email,
+    userDisplayName: `${firstName} ${lastName}`,
+    authenticatorSelection: {
+        residentKey: "preferred",
+        userVerification: "required", // Enforce biometric or other user verification
+        requireResidentKey: false,
+    },
+    attestation: "none", // or "direct" if you need attestation data
+});
 
     res.cookie(
       "regInfo",
@@ -131,15 +138,17 @@ app.get("/init-auth", async (req, res) => {
     }
 
     const options = await generateAuthenticationOptions({
-      rpID: RP_ID,
-      allowCredentials: [
+    rpID: RP_ID,
+    allowCredentials: [
         {
-          id: user.passKey.id,
-          type: "public-key",
-          transports: user.passKey.transports,
+            id: user.passKey.id,
+            type: "public-key",
+            transports: user.passKey.transports,
         },
-      ],
-    });
+    ],
+    userVerification: "required", // Enforce biometric or other user verification
+});
+
 
     console.log("Authentication options generated:", options);
 
