@@ -14,14 +14,18 @@ const {
   getUserById,
 } = require("./db");
 
+// Use PORT provided in environment or default to 3000
+const port = process.env.PORT || 3000;
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const CLIENT_URL = "http://localhost:5173";
-const RP_ID = "localhost";
+const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+const RP_ID = process.env.RP_ID || "localhost";
 
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+
+app.use(cors({ origin: clientUrl, credentials: true }));
 
 app.get("/init-register", async (req, res) => {
   const { email, firstName, lastName, dob } = req.query;
@@ -68,7 +72,7 @@ app.post("/verify-register", async (req, res) => {
   const verification = await verifyRegistrationResponse({
     response: req.body,
     expectedChallenge: regInfo.challenge,
-    expectedOrigin: CLIENT_URL,
+    expectedOrigin: clientUrl,
     expectedRPID: RP_ID,
   });
 
@@ -143,7 +147,7 @@ app.post("/verify-auth", async (req, res) => {
   const verification = await verifyAuthenticationResponse({
     response: req.body,
     expectedChallenge: authInfo.challenge,
-    expectedOrigin: CLIENT_URL,
+    expectedOrigin: clientUrl,
     expectedRPID: RP_ID,
     authenticator: {
       credentialID: user.passKey.id,
@@ -164,6 +168,9 @@ app.post("/verify-auth", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
+
+
+// Listen on `port` and 0.0.0.0
+app.listen(port, "0.0.0.0", function () {
+  console.log(`Server running on port ${port}`);
 });
