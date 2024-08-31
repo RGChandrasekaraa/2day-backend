@@ -13,16 +13,18 @@ const {
   updateUserCounter,
   getUserById,
 } = require("./db");
+const dotenv = require("dotenv");
+dotenv.config();
 
-// Use PORT provided in environment or default to 3000
-const port = process.env.PORT || 3000;
+// Use PORT provided in environment
+const port = process.env.PORT;
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-const RP_ID = process.env.RP_ID || "localhost";
+const clientUrl = process.env.CLIENT_URL;
+const RP_ID = process.env.RP_ID;
 
 
 app.use(cors({ origin: clientUrl, credentials: true }));
